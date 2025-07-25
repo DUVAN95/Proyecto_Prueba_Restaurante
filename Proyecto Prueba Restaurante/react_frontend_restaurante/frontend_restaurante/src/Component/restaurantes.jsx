@@ -22,8 +22,9 @@ export default function Restaurantes() {
     const[ver_Lista_Restaurantes, setVer_Lista_Restaurantes] = useState(true);
     const[modal_Form, setModal_Form] = useState(false);
     const[restaurante, setRestaurante] = useState(Json_Restaurante_Vacio); // Edit and New
-
-
+    
+    const[filtro, setFiltro] = useState("Ninguno");
+    const[text_filtro, setText_Filtro] = useState("");
     
 
     useEffect(()=>{
@@ -38,6 +39,31 @@ export default function Restaurantes() {
             .then(response => response.json())
             .then(Json_Data => setRestaurantes(Json_Data))
     }
+
+    
+    const getRestaurantesByFiltro = (filtro) => {
+        
+        var complementourl = ""
+
+        if(filtro == "Letra"){
+            complementourl = "?letra=" + text_filtro
+        }else{
+            if(filtro == "Ciudad"){
+                complementourl = "?ciudad=" + text_filtro
+            }
+        }
+        
+        fetch(URL_Server + "/api/restaurantes" + complementourl)
+            .then(response => response.json())
+            .then(Json_Data => setRestaurantes(Json_Data))
+    }
+
+    // const getRestaurantesByCiudad = (Ciudad) => {
+        
+    //     fetch(URL_Server + "/api/restaurantes?Ciudad=" + Ciudad)
+    //         .then(response => response.json())
+    //         .then(Json_Data => setRestaurantes(Json_Data))
+    // }
 
     const insertRestaurante = (Json_New_Restaurante) => {
         fetch(URL_Server + `/api/restaurantes`, {
@@ -88,6 +114,17 @@ export default function Restaurantes() {
                     <div>
                         <h1>Reservas</h1>
                         <button onClick={() => navigate("/")}>Reservas</button>
+                    </div>
+                    <div className="row mt-3">
+                        <div className="col-12 col-lg-4">
+                            <label><b>Filtro: </b></label>
+                            <input type="text" name= "name" value={text_filtro} onChange={(event) => setText_Filtro(event.target.value)} className="form-control" placeholder="Digite"></input>
+                            <label><b>Tipo Filtro: </b></label>
+                            <label >Ninguno <input type="radio" name="filtro"  onClick={() => {setFiltro("Ninguno")}}></input></label>
+                            <label >Letra <input type="radio" name="filtro"  onClick={() => {setFiltro("Letra")}}></input></label>
+                            <label >Ciudad <input type="radio" name="filtro"  onClick={() => {setFiltro("Ciudad")}}></input></label>
+                            <button onClick={() => getRestaurantesByFiltro(filtro)}>Filtrar</button>
+                        </div>                    
                     </div>
                     <div className="row mt-3">
                         <div className="col md-4">

@@ -13,7 +13,19 @@ main = Blueprint("main", __name__)
 @main.route("/api/restaurantes")
 def getAllRestaurantes():
     
-    restaurantes = Restaurante.query.all()
+    Letra = request.args.get("letra", default=None)
+    Ciudad = request.args.get("ciudad", default=None)
+    if(Letra == None and Ciudad == None):
+        restaurantes = Restaurante.query.all()
+    else:
+        if(Letra != None):
+            restaurantes = Restaurante.query.filter(Restaurante.name.ilike(f"{Letra}%"))
+        else:
+            restaurantes = Restaurante.query.filter(Restaurante.city == Ciudad).all()
+
+
+
+    #restaurantes = Restaurante.query.all()
     Lista_Restaurantes=[]
     contador = 0
 
