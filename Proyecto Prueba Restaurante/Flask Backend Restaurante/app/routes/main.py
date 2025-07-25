@@ -5,6 +5,9 @@ from app.models.mesa import Mesa
 from app.models.reserva import Reserva
 from datetime import datetime
 
+from werkzeug.utils import secure_filename
+import os
+
 main = Blueprint("main", __name__)
 
 ### ///////////////////////////  APIS RESTAURANTES  /////////////////////////
@@ -43,12 +46,21 @@ def addRestaurante():
 
     data_json = request.get_json()
     print(data_json)
+
+    photo_url = None
+    imagen = request.files.get("imagen")
+    if imagen != None :
+        nombre_archivo = secure_filename(imagen.filename)
+        ruta_url = os.path.join('static/imagenes', nombre_archivo)
+        imagen.save(ruta_url)
+        photo_url = f"/{ruta_url}"
+
     new_Restaurante = Restaurante(
         name = data_json["name"],
         description =data_json["description"],
         address = data_json["address"],
         city =data_json["city"],
-        photo_url = data_json["photo_url"]
+        #photo_url = photo_url
     )
 
     ## Agregar 15 mesas al restaurante creado.
@@ -59,6 +71,34 @@ def addRestaurante():
     new_Restaurante.save() 
 
     return jsonify(message="El Restaurante fue creado correctamente")
+
+
+#Agregar imagen
+
+@main.route("/api/addImagenRestaurante", methods=["POST"])
+def addImagenRestaurante():
+
+
+    id = request.form.get("id")
+    imagen = request.files.get("imagen")
+    print("******************************************* request")
+    print(request.form)
+
+    photo_url = None
+    if imagen != None :
+        nombre_archivo = secure_filename(imagen.filename)
+        ruta_url = os.path.join("static", "imagenes", nombre_archivo)
+        imagen.save(ruta_url)
+        photo_url =  f"/static/imagenes/{nombre_archivo}"
+
+    restaurante = Restaurante.query.get(id)
+    restaurante.photo_url = photo_url
+    restaurante.update()
+
+
+    return jsonify(message="El Restaurante fue creado correctamente")
+
+
 
 
 # Actualizar restaurantes

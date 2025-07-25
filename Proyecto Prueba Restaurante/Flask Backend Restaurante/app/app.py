@@ -11,12 +11,16 @@ from app.models import reserva
 
 from app.routes.main import main
 
+import os
+
 
 
 
 def inicializar_APP ():
+    
+    static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static')
 
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder=static_path, static_url_path="/static")
     CORS(app) ## permite peticiones desde otro origen distinto al del backend
 
     ## Registrar Rutas
@@ -26,6 +30,8 @@ def inicializar_APP ():
     config = Config()
     config.Inicializar_DataBase(app)
     config.Conectar_DataBaase(app)
+
+    config.Inicializar_Imagenes(app)
 
     return app
 

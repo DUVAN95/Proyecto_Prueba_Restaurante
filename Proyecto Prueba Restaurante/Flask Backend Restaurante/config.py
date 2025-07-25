@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import os
 
 db = SQLAlchemy()
 
@@ -24,3 +25,7 @@ class Config():
                 print("Error de conexión:", e)
             db.create_all()
             print("Base de datos establecida y/o creada")
+    
+    def Inicializar_Imagenes(self, app):
+        app.config['UPLOAD_FOLDER'] = os.path.join('static', 'imagenes')
+        app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024

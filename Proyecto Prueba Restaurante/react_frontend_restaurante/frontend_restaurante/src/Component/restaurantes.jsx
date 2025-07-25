@@ -25,6 +25,8 @@ export default function Restaurantes() {
     
     const[filtro, setFiltro] = useState("Ninguno");
     const[text_filtro, setText_Filtro] = useState("");
+
+    const [fotografia, setfotografia] = useState(null);
     
 
     useEffect(()=>{
@@ -105,6 +107,25 @@ export default function Restaurantes() {
         .then(Json_Data => {setNotificacion(Json_Data.message); getAllRestaurantes();})
     }
 
+    const addImagenRestaurante = (id) => {
+
+        const Datos_Envio = new FormData();
+        Datos_Envio.append("id", id);
+        
+        if (fotografia != null) {
+            Datos_Envio.append("imagen", fotografia); 
+        }
+
+        fetch(URL_Server + `/api/addImagenRestaurante`, {
+            method: "POST",
+            body: Datos_Envio
+        })
+        .then(response => {response.json(); setfotografia(null)})
+        .then(Json_Data => {getAllRestaurantes(); setfotografia(null)})
+
+
+    }
+
     return <div className="App">
 
                 <div className="container-fluid">
@@ -136,7 +157,7 @@ export default function Restaurantes() {
                             <div className="table-responsive">
                                 <table className="table table-bordered">
                                     <thead>
-                                        <tr><th>ID</th><th>Nombre</th><th>Ciudad</th><th>Dirección</th><th>Descripción</th><th></th><th></th></tr>
+                                        <tr><th>ID</th><th>Nombre</th><th>Ciudad</th><th>Dirección</th><th>Descripción</th><th>Fotografia</th><th></th><th></th></tr>
                                     </thead>
                                     <tbody className="table-group-divider">
                                         {restaurantes.map((restaurante,index) => (
@@ -147,6 +168,18 @@ export default function Restaurantes() {
                                                 <td>{restaurante.city}</td>
                                                 <td>{restaurante.address}</td>
                                                 <td>{restaurante.description}</td>
+                                                <div>
+                                                    <div >
+                                                        {restaurante.photo_url && (<img src={URL_Server + restaurante.photo_url} alt={`Foto del restaurante ${restaurante.name}`} style={{ width: "200px" }} />)}
+                                                    </div>
+                                                    {!restaurante.photo_url && (
+                                                        <div>
+                                                            <input type="file" accept="image/*" onChange={(e) => setfotografia(e.target.files[0])}/>
+                                                            <button className="btn btn-dark" onClick={() => {addImagenRestaurante(restaurante.id)}}>Subir</button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                    
                                                 <td><button className="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalForm" onClick={() => {setModal_Form(true); setRestaurante(restaurante)}}>Editar</button></td>
                                                 <td><button className="btn btn-danger" onClick={() => deleteRestaurante(restaurante.id)}>Eliminar</button></td>
                                             </tr>
@@ -164,7 +197,8 @@ export default function Restaurantes() {
                         <div className="modal-content">
                             
                             <div className="modal-header bg-secondary text-white">
-                                <label className="h5">Agregar Restaurante</label>
+                                {restaurante.id == null && (<label className="h5">Agregar Restaurante</label>)}
+                                {restaurante.id != null && (<label className="h5">Edición Restaurante</label>)}
                                 <button type="button" className="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             
@@ -184,6 +218,10 @@ export default function Restaurantes() {
                                 <label>Descripcion:</label>
                                 <input type="text" name= "description" value={restaurante.description} onChange={(event) => setRestaurante({...restaurante, description: event.target.value})} className="form-control" placeholder="Descripción"></input>
                                 <br />
+
+                                {/* <label>Fotografía:</label>
+                                <input type="file" className="form-control" accept="image/*" onChange={(e) => setfotografia(e.target.files[0])}/> */}
+
 
                             </div>
 
