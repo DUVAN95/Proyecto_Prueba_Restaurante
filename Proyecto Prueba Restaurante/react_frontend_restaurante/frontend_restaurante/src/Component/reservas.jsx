@@ -1,7 +1,7 @@
 
 import {useState, useEffect} from "react"
 import Restaurantes from "./restaurantes";
-import DatePicker from "react-datepicker";
+//import DatePicker from "react-datepicker";
 import { useNavigate } from "react-router-dom";
 
 export default function Reservas() {
@@ -27,7 +27,7 @@ export default function Reservas() {
 
     const[modo_Edicion, setModo_Edicion] = useState(false);
 
-    
+    const[max_reserva, set_MaxReserva] = useState(0);
     
     const[restaurante_mesaspake, setRestaurante_mesaspake] = useState("Sin nombre");
 
@@ -56,16 +56,19 @@ export default function Reservas() {
     }
 
     const updateMesa = (id, Json_Mesa) => {
-        fetch(URL_Server + `/api/mesas/${id}`, {
-            method : "PUT",
-            headers : {"content-type": "application/json"},
-            body :JSON.stringify({
-                reservada: Json_Mesa["reservada"],
-                Date_Reserva: Json_Mesa["Date_Reserva"]
+        if(max_reserva <= 1){
+            fetch(URL_Server + `/api/mesas/${id}`, {
+                method : "PUT",
+                headers : {"content-type": "application/json"},
+                body :JSON.stringify({
+                    reservada: Json_Mesa["reservada"],
+                    Date_Reserva: Json_Mesa["Date_Reserva"]
+                })
             })
-        })
-            .then(response => response.json())
-            .then(Json_Data => {setNotificacion(Json_Data.message); getAllMesas(); getMesas_reservadas()})
+                .then(response => response.json())
+                .then(Json_Data => {setNotificacion(Json_Data.message); getAllMesas(); getMesas_reservadas(); set_MaxReserva(max_reserva+1);})
+        }
+        
     }
 
     const cancelReserva = (id) => {
@@ -104,7 +107,9 @@ export default function Reservas() {
         for(const mesa_id of mesas_id){
             for (const mesa of mesasTotal){
                 if(mesa.id == mesa_id.id){
-                    lista_Mesas.push(mesa);
+                    if(mesa.reservada != true){
+                        lista_Mesas.push(mesa);
+                    }
                 }
                 
             }
